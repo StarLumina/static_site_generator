@@ -33,27 +33,36 @@ def split_nodes_image(old_nodes: list[TextNode])->list[TextNode]:
     new_nodes = []
     for node in old_nodes:
         og_text = node.text
-        images = extract_markdown_images(node)
+        images = extract_markdown_images(node.text)
         if len(images) == 0 and node.text != "": 
             new_nodes.append(node)
             continue
         for image in images:
-            sections = og_text.split(f"![{image[0]}]({image[1]})", 1)
-            new_nodes.append(TextNode(sections.pop(0), TextType.PLAIN))
+            og_text = og_text.split(f"![{image[0]}]({image[1]})", 1)
+            if og_text[0] != "":
+                new_nodes.append(TextNode(og_text.pop(0), TextType.PLAIN))
             new_nodes.append(TextNode(image[0], TextType.IMAGE, image[1]))
+            og_text = "".join(og_text)
+        if og_text != "":
+            new_nodes.append(TextNode(og_text, TextType.PLAIN))
     return new_nodes
 
 def split_nodes_link(old_nodes: list[TextNode])->list[TextNode]:
+    new_nodes = []
+    for node in old_nodes:
+        og_text = node.text
+        images = extract_markdown_links(node.text)
+        if len(images) == 0 and node.text != "": 
+            new_nodes.append(node)
+            continue
+        for image in images:
+            og_text = og_text.split(f"[{image[0]}]({image[1]})", 1)
+            new_nodes.append(TextNode(og_text.pop(0), TextType.PLAIN))
+            new_nodes.append(TextNode(image[0], TextType.LINK, image[1]))
+            og_text = "".join(og_text)
+        if og_text != "":
+            new_nodes.append(TextNode(og_text, TextType.PLAIN))
+    return new_nodes
+
+def text_to_textnodes(text):
     return
-
-    
-
-
-#node = TextNode("This is text with a `code block` word", TextType.TEXT)
-#new_nodes = split_nodes_delimiter([node], "`", TextType.CODE)
-
-#[
-#   TextNode("This is text with a ", TextType.TEXT),
-#    TextNode("code block", TextType.CODE),
-#    TextNode(" word", TextType.TEXT),
-#]
