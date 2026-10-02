@@ -140,3 +140,7 @@ vite.config.ts.timestamp-*
 
 #cache
 __pycache__/
+
+#generated files
+
+public/
