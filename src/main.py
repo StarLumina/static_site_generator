@@ -8,6 +8,7 @@ def main():
     print("Running main...\n wait a sec bbgrl")
     toSmithereens()
     copy_static()
+    generate_page("content/index.md", "template.html", "public/index.html")
 
 def copy_static (copyTo: str = "public", copyFrom: str = "static"):
     list_to_copy = os.listdir(copyFrom)
@@ -28,16 +29,27 @@ def toSmithereens():
     os.mkdir(os.path.abspath("./public"))
 
 def extract_title(markdown):
-    if re.match(r"# ",markdown):
-        raise Exception("No title found")
-    return markdown.split("# ")[-1]("\n")[0]
+    lines = markdown.split("\n")
+    for line in lines:
+        if line.startswith("# "):
+            return line[2:].strip()
+    raise Exception("No title found")
 
 def generate_page(from_path, template_path, dest_path):
     print(f"Generating page from {from_path} to {dest_path} using {template_path}")
-    fromFile = from_path.read()
-    templateFile = template_path.read()
-    html = markdown_to_html_node(fromFile)
+    with open(from_path) as file:
+        with open(template_path) as template:
+            fileText = file.read()
+            templateFile = template.read()
+            html = markdown_to_html_node(fileText).to_html()
+            title = extract_title(fileText)
+            htmlFile = templateFile.replace("{{ Title }}", title).replace("{{ Content }}", html)
+            dest = os.path.dirname(dest_path)
+            os.makedirs(dest, exist_ok = True)
+            with open(dest_path, "w") as destination:
+                destination.write(htmlFile)
     
+
 
 main()
 
