@@ -8,7 +8,8 @@ def main():
     print("Running main...\n wait a sec bbgrl")
     toSmithereens()
     copy_static()
-    generate_page("content/index.md", "template.html", "public/index.html")
+    #generate_page("content/index.md", "template.html", "public/index.html")
+    generate_pages_recursive("content", "template.html", "public")
 
 def copy_static (copyTo: str = "public", copyFrom: str = "static"):
     list_to_copy = os.listdir(copyFrom)
@@ -49,7 +50,19 @@ def generate_page(from_path, template_path, dest_path):
             with open(dest_path, "w") as destination:
                 destination.write(htmlFile)
     
-
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+    ### change change change 
+    list_to_copy = os.listdir(dir_path_content)
+    for item in list_to_copy:
+        pathOfItem = os.path.join(dir_path_content,item)
+        if os.path.isfile(pathOfItem):
+            generate_page(pathOfItem, template_path, dest_dir_path + "/" + item.replace(".md", ".html"))
+            print(f"copying {pathOfItem} to {dest_dir_path}")
+        else:
+            newAddress = os.path.join(dest_dir_path, item)
+            generate_pages_recursive(os.path.join(dir_path_content, item), template_path, newAddress)
+    #helper function to delete, posibly use same one to clear first
+    return
 
 main()
 
